@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AGRI VOICE — AI farm assistant</title>
+<style>
+:root{--green:#176b45;--deep:#104b32;--mint:#eaf5ed;--cream:#f7f8f2;--ink:#183328;--muted:#66776d;--white:#fff;--line:#dce8df}
+*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font:16px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}.app{max-width:920px;margin:auto;min-height:100vh;padding:20px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px}.brand{display:flex;align-items:center;gap:10px;font-weight:850;letter-spacing:.08em;color:var(--deep)}.logo{width:42px;height:42px;border-radius:14px;background:var(--green);color:white;display:grid;place-items:center;font-size:23px}.pill{font-size:12px;background:#e1efe5;color:var(--green);padding:6px 11px;border-radius:30px;font-weight:700}.hero{margin:28px 0 18px;background:linear-gradient(125deg,#124e35,#238354);color:#fff;border-radius:24px;padding:26px}.hero h1{font-size:clamp(27px,5vw,42px);line-height:1.1;margin:0 0 9px}.hero p{margin:0;color:#e1f2e7}.layout{display:grid;grid-template-columns:1.25fr .75fr;gap:16px}.panel{background:var(--white);border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:0 5px 20px #173c2510}.panel h2{font-size:18px;margin:0 0 5px}.sub{color:var(--muted);font-size:13px;margin:0 0 16px}.controls,.sendrow{display:flex;gap:9px;align-items:center;flex-wrap:wrap}select,button,input{font:inherit;border-radius:12px;border:1px solid var(--line);padding:11px 13px;background:white;color:var(--ink)}select{flex:1;min-width:145px}button{cursor:pointer;font-weight:700}button:disabled{opacity:.5;cursor:not-allowed}.mic{background:var(--green);border:0;color:white;min-width:145px}.secondary{background:var(--mint);color:var(--deep);border-color:#d5e8da}.status{font-size:13px;color:var(--muted);margin:12px 0}.transcript{min-height:54px;border:1px dashed #bfd3c4;background:#fbfdf9;border-radius:12px;padding:12px;font-size:14px}.response{margin-top:12px;background:var(--mint);border-radius:14px;padding:14px;min-height:92px;white-space:pre-wrap}.response strong{display:block;color:var(--deep);font-size:12px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}.response p{margin:0}.sendrow{margin-top:12px}.sendrow input{flex:1;min-width:150px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.actions button{font-size:13px;padding:8px 10px}.topics{display:grid;gap:9px}.topic{display:flex;align-items:center;gap:10px;text-align:left;width:100%;padding:11px;background:#fbfdf9}.topic span:first-child{font-size:21px}.topic small{display:block;color:var(--muted);font-weight:400}.note{font-size:12px;color:var(--muted);margin-top:15px}.footer{font-size:12px;color:var(--muted);text-align:center;padding:20px 0}.history{margin-top:14px;display:grid;gap:8px}.history div{font-size:13px;padding:9px 11px;background:#f6f9f5;border-radius:10px;white-space:pre-wrap}@media(max-width:700px){.layout{grid-template-columns:1fr}.app{padding:14px}.hero{margin-top:18px;padding:22px}}
+</style>
+</head>
+<body><main class="app">
+<header class="top"><div class="brand"><div class="logo">🌱</div><div>AGRI VOICE<div style="font-size:10px;letter-spacing:.16em;color:#718278;font-weight:600">YOUR FARM. YOUR LANGUAGE.</div></div></div><span class="pill">LLM CONNECTED VERSION</span></header>
+<section class="hero"><h1>Talk to your farm assistant.</h1><p>Ask an agriculture question in Tamil, English or Hindi. The backend sends it to a real language model.</p></section>
+<div class="layout">
+<section class="panel">
+<h2>Start a conversation</h2><p class="sub">Type a question or use the microphone.</p>
+<div class="controls"><select id="language" aria-label="Choose language"><option value="ta-IN">தமிழ் (Tamil)</option><option value="en-IN">English (India)</option><option value="hi-IN">हिन्दी (Hindi)</option></select><button class="mic" id="mic">🎙️ Start speaking</button></div>
+<div class="status" id="status" aria-live="polite">Checking backend connection…</div>
+<div class="transcript" id="transcript">Your question will appear here…</div>
+<div class="sendrow"><input id="question" type="text" placeholder="Type your farming question…" maxlength="4000"><button id="send">Send</button></div>
+<div class="response" aria-live="polite"><strong>AGRI VOICE response</strong><p id="answer">வணக்கம்! உங்கள் விவசாயக் கேள்வியைக் கேளுங்கள்.</p></div>
+<div class="actions"><button class="secondary" id="speak">🔊 Hear answer</button><button class="secondary" id="stop">■ Stop audio</button><button id="clear">Clear conversation</button></div>
+<div class="history" id="history"></div>
+<p class="note">Prototype limitation: the LLM is not yet connected to live weather, market prices, official scheme databases or a verified crop-diagnosis knowledge base. Confirm important farming decisions with a qualified agricultural officer.</p>
+</section>
+<aside class="panel"><h2>Try asking</h2><p class="sub">Select a sample question to send it to the real LLM.</p><div class="topics">
+<button class="topic" data-question="என் மண் பரிசோதனை அறிக்கையில் pH 8 என்று உள்ளது. இதன் பொருள் என்ன?"><span>🧪</span><span><b>Soil health</b><small>Explain a soil-test result</small></span></button>
+<button class="topic" data-question="How should I plan irrigation for my crop? What details do you need?"><span>💧</span><span><b>Irrigation</b><small>Plan watering carefully</small></span></button>
+<button class="topic" data-question="என் தக்காளி செடியில் இலைகள் மஞ்சளாக மாறுகின்றன. என்ன காரணம் இருக்கலாம்?"><span>🌿</span><span><b>Crop concern</b><small>Ask about changing leaf colour</small></span></button>
+<button class="topic" data-question="Where can I verify today's tomato market price in Tamil Nadu?"><span>🧺</span><span><b>Market prices</b><small>Find official price information</small></span></button>
+<button class="topic" data-question="How can I check current Tamil Nadu government schemes for farmers?"><span>📋</span><span><b>Government schemes</b><small>Find official scheme information</small></span></button>
+</div><div class="note">The assistant must not invent live prices, scheme deadlines, eligibility or pesticide doses.</div></aside>
+</div><div class="footer">AGRI VOICE · Voice-first agricultural information assistant · LLM backend v1</div>
+</main>
+<script>
+const API_URL = "http://127.0.0.1:8000/api/chat";
+const $ = id => document.getElementById(id);
+let recognition = null;
+let chatHistory = [];
+let lastAnswer = "";
+
+function selectedLanguage() {
+  const value = $("language").value;
+  return value.startsWith("ta") ? "ta" : value.startsWith("hi") ? "hi" : "en";
+}
+function speechLocale() { return $("language").value; }
+
+async function checkBackend() {
+  try {
+    const response = await fetch("http://127.0.0.1:8000/");
+    if (!response.ok) throw new Error("Backend did not respond.");
+    const data = await response.json();
+    $("status").textContent = data.model_configured
+      ? `Backend connected. Model: ${data.model}`
+      : "Backend is running, but its API key is not configured.";
+  } catch {
+    $("status").textContent = "Backend not connected. Start the FastAPI server, then refresh this page.";
+  }
+}
+
+async function askAI(text) {
+  const question = text.trim();
+  if (!question) return;
+  $("transcript").textContent = question;
+  $("status").textContent = "AGRI VOICE is thinking…";
+  $("send").disabled = true;
+  $("mic").disabled = true;
+
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        message: question,
+        language: selectedLanguage(),
+        history: chatHistory
+      })
+    });
+
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || "Request failed.");
+
+    const answer = data.answer;
+    $("answer").textContent = answer;
+    lastAnswer = answer;
+    chatHistory.push({role: "user", content: question});
+    chatHistory.push({role: "assistant", content: answer});
+    chatHistory = chatHistory.slice(-12);
+
+    const item = document.createElement("div");
+    const q = document.createElement("b");
+    q.textContent = "You: ";
+    const questionText = document.createTextNode(question + "\n");
+    const a = document.createElement("b");
+    a.textContent = "AGRI VOICE: ";
+    const answerText = document.createTextNode(answer);
+    item.append(q, questionText, a, answerText);
+    $("history").prepend(item);
+
+    $("status").textContent = "Answer received from the AI backend.";
+    speak(answer);
+  } catch (error) {
+    $("status").textContent = "Could not get an AI answer: " + error.message;
+  } finally {
+    $("send").disabled = false;
+    $("mic").disabled = false;
+  }
+}
+
+function speak(text) {
+  if (!("speechSynthesis" in window) || !text) return;
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = speechLocale();
+  utterance.rate = 0.9;
+  window.speechSynthesis.speak(utterance);
+}
+
+$("send").addEventListener("click", () => {
+  const text = $("question").value;
+  $("question").value = "";
+  askAI(text);
+});
+$("question").addEventListener("keydown", event => {
+  if (event.key === "Enter") $("send").click();
+});
+$("speak").addEventListener("click", () => speak(lastAnswer || $("answer").textContent));
+$("stop").addEventListener("click", () => window.speechSynthesis?.cancel());
+$("clear").addEventListener("click", () => {
+  chatHistory = [];
+  lastAnswer = "";
+  $("history").innerHTML = "";
+  $("transcript").textContent = "Your question will appear here…";
+  $("answer").textContent = "வணக்கம்! உங்கள் விவசாயக் கேள்வியைக் கேளுங்கள்.";
+  $("status").textContent = "Conversation cleared.";
+  window.speechSynthesis?.cancel();
+});
+document.querySelectorAll("[data-question]").forEach(button => {
+  button.addEventListener("click", () => askAI(button.dataset.question));
+});
+
+$("mic").addEventListener("click", () => {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    $("status").textContent = "Speech recognition is unavailable in this browser. Type your question instead.";
+    return;
+  }
+  if (recognition) { recognition.stop(); recognition = null; return; }
+
+  recognition = new SpeechRecognition();
+  recognition.lang = speechLocale();
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+  recognition.onstart = () => {
+    $("mic").textContent = "⏺ Listening…";
+    $("status").textContent = "Listening. Speak clearly, then pause.";
+  };
+  recognition.onresult = event => askAI(event.results[0][0].transcript);
+  recognition.onerror = event => {
+    $("status").textContent = "Microphone issue: " + event.error + ". Check browser permission.";
+  };
+  recognition.onend = () => {
+    $("mic").textContent = "🎙️ Start speaking";
+    recognition = null;
+  };
+  recognition.start();
+});
+
+checkBackend();
+</script>
+</body>
+</html>
